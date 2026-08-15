@@ -1,0 +1,49 @@
+# 1) VCS & IDE
+.git
+.gitignore
+.vscode/
+.DS_Store
+
+# 2) Python caches / venvs
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+.mypy_cache/
+.pytype/
+.pytest_cache/
+
+# 3) Build artifacts
+build/
+dist/
+*.egg-info/
+htmlcov/
+.coverage*
+
+# 4) Logs & temp
+*.log
+*.tmp
+temp/
+*~
+
+# 5) Host-only scripts (keep ignored if not needed inside image)
+run_servers.sh
+run_adapters.sh
+Run_ETL_VIIRS.sh
+
+# 6) Secrets / local config
+.env
+.env.*
+
+# 7) Large data files (mounted at runtime)
+#   – Any DuckDB anywhere
+**/*.duckdb
+#   – Common data formats you’ll mount
+**/*.csv
+**/*.tsv
+**/*.parquet
+**/*.feather
+**/*.jsonl
+
+
