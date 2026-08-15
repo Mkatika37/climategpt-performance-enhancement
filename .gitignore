@@ -211,3 +211,8 @@ nul
 *.duckdb
 *.db
 *.sqlite
+
+# Databases and data files
+*.duckdb
+*.db
+*.sqlite
