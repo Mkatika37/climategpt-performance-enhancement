@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Navigate to project root where uv is installed
-cd /srv/github/GMU_DAEN_2025_02_D
+cd .
 source .venv/bin/activate
 
 # Navigate to adapter folder
@@ -17,3 +17,5 @@ python viirs_http_adapter.py &
 
 # Wait for both to finish (optional)
 wait
+
+

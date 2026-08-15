@@ -751,7 +751,7 @@ async def run_describe_viirs_dataset(_: dict[str, Any]) -> TextContent:
     )
 
     uris = [
-        "file:///srv/github/GMU_DAEN_2025_02_D/Docs/Satellite_(VIIRS)_Thermal_Hotspots_and_Fire_Activity.md",
+        "file://./Docs/Satellite_(VIIRS)_Thermal_Hotspots_and_Fire_Activity.md",
         "https://www.earthdata.nasa.gov/data/instruments/viirs/viirs-i-band-375-m-active-fire-data"
     ]
 
@@ -775,7 +775,7 @@ async def run_describe_viirs_dataset(_: dict[str, Any]) -> TextContent:
     return TextContent(type="text", text="\n".join(output))
 
 async def run_summarize_viirs_docs(_: dict[str, Any]) -> TextContent:
-    doc_path = Path("/srv/github/GMU_DAEN_2025_02_D/Docs/Satellite_(VIIRS)_Thermal_Hotspots_and_Fire_Activity.md")
+    doc_path = Path("./Docs/Satellite_(VIIRS)_Thermal_Hotspots_and_Fire_Activity.md")
     
     if not doc_path.exists():
         return TextContent(type="text", text="Documentation file not found at expected path.")
@@ -1250,3 +1250,5 @@ if __name__ == "__main__":
         traceback.print_exc(file=sys.stderr)
         sys.stderr.flush()
         sys.exit(1)
+
+

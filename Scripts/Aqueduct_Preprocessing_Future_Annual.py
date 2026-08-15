@@ -47,3 +47,5 @@ print(f"Duplicate rows: {df.duplicated().sum()}")
 
 #Save to CSV
 df_rows_dropped.to_csv("/var/TeamPipeline/Preprocessed/aqueduct_future_annual_cleaned.csv", index=False)
+
+

@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class VIIRSConfig:
     # Default DB path - update to your actual path
-    db_path: str = r"C:\Users\ASUS\GMU_DAEN_2025_02_D\Source\Database\VIIRS_Thermal_Database.duckdb"
+    db_path: str = r".\Source\Database\VIIRS_Thermal_Database.duckdb"
     # Read-only by default since data is populated by ETL script
     read_only: bool = True
 
@@ -154,6 +154,129 @@ class VIIRSDuckDBHandler:
             # Handle other complex objects
             return str(obj)
         return obj
+
+    # -- Count fires by specific date ------------------------------------------
+    def count_fires_by_date(
+        self,
+        dataset_name: str,
+        date: str,
+        group_by: Optional[List[str]] = None,
+        additional_filters: Optional[Dict[str, Any]] = None,
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Count fires detected on a specific date.
+        
+        Args:
+            dataset_name: Name of the table
+            date: Date in YYYY-MM-DD format
+            group_by: Optional grouping columns
+            additional_filters: Additional filters to apply
+            
+        Returns:
+            Dictionary with count results
+        """
+        # Parse the date and create start/end bounds for the full day
+        try:
+            date_obj = datetime.strptime(date, '%Y-%m-%d')
+            start_datetime = date_obj.strftime('%Y-%m-%d 00:00:00')
+            end_datetime = date_obj.strftime('%Y-%m-%d 23:59:59')
+        except ValueError:
+            return {
+                "error": f"Invalid date format: {date}. Expected YYYY-MM-DD",
+                "fire_count": 0
+            }
+        
+        # Build filters for the specific date
+        filters = additional_filters.copy() if additional_filters else {}
+        filters['acquisition_timestamp'] = {
+            'min': start_datetime,
+            'max': end_datetime
+        }
+        
+        # Call the main count_fires method
+        result = self.count_fires(dataset_name, filters=filters, group_by=group_by)
+        
+        if result:
+            # Add date context
+            result['query_date'] = date
+            result['date_range'] = {
+                'start': start_datetime,
+                'end': end_datetime
+            }
+        
+        return result
+
+    # -- Count fires by date range ---------------------------------------------
+    def count_fires_by_date_range(
+        self,
+        dataset_name: str,
+        start_date: str,
+        end_date: str,
+        group_by: Optional[List[str]] = None,
+        additional_filters: Optional[Dict[str, Any]] = None,
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Count fires detected between two dates (inclusive).
+        
+        Args:
+            dataset_name: Name of the table
+            start_date: Start date in YYYY-MM-DD format (inclusive)
+            end_date: End date in YYYY-MM-DD format (inclusive, includes full day until 23:59:59)
+            group_by: Optional grouping columns
+            additional_filters: Additional filters to apply
+            
+        Returns:
+            Dictionary with count results
+        """
+        # Parse dates and create proper datetime bounds
+        try:
+            start_obj = datetime.strptime(start_date, '%Y-%m-%d')
+            end_obj = datetime.strptime(end_date, '%Y-%m-%d')
+            
+            # Start of first day
+            start_datetime = start_obj.strftime('%Y-%m-%d 00:00:00')
+            # End of last day (inclusive)
+            end_datetime = end_obj.strftime('%Y-%m-%d 23:59:59')
+            
+        except ValueError as e:
+            return {
+                "error": f"Invalid date format. Expected YYYY-MM-DD. Error: {e}",
+                "fire_count": 0
+            }
+        
+        # Validate date range
+        if end_obj < start_obj:
+            return {
+                "error": f"End date ({end_date}) cannot be before start date ({start_date})",
+                "fire_count": 0
+            }
+        
+        # Build filters for the date range
+        filters = additional_filters.copy() if additional_filters else {}
+        filters['acquisition_timestamp'] = {
+            'min': start_datetime,
+            'max': end_datetime
+        }
+        
+        # Call the main count_fires method
+        result = self.count_fires(dataset_name, filters=filters, group_by=group_by)
+        
+        if result:
+            # Calculate number of days
+            days_span = (end_obj - start_obj).days + 1  # +1 to include both start and end dates
+            
+            # Add date range context
+            result['query_date_range'] = {
+                'start_date': start_date,
+                'end_date': end_date,
+                'days_included': days_span
+            }
+            result['date_range'] = {
+                'start': start_datetime,
+                'end': end_datetime
+            }
+        
+        return result
 
     # -- Count fires by days back ----------------------------------------------
     def count_fires_by_days(
@@ -446,3 +569,5 @@ class VIIRSDuckDBHandler:
             WHERE table_schema = ? AND table_name = ?
         """
         return con.execute(q, [schema, table]).fetchone()[0] > 0
+
+

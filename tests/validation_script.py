@@ -8,7 +8,7 @@ import duckdb
 import pandas as pd
 
 DB_PATH = r"C:/Users/iruka/aqueduct_40_database.duckdb"
-CC_CSV = r"C:/Users/iruka/GMU_DAEN_2025_02_D/Source/Database/country_continent.csv"
+CC_CSV = r"C:/Users/iruka/climategpt-performance-enhancement/Source/Database/country_continent.csv"
 
 # ---------- Connect safely ----------
 def connect_duckdb(db_path: str):
@@ -234,4 +234,6 @@ if _temp_copy:
         pass
 
 print("\nDone.")
+
+
 

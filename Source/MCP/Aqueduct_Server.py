@@ -342,3 +342,5 @@ if __name__ == "__main__":
     logger.info("Starting DuckDB Dataset & PDF MCP Server (FastMCP over stdio)...")
     _run_stdio_server()
  
+
+

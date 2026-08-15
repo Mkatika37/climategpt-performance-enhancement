@@ -7,7 +7,7 @@
         "-o", "ServerAliveCountMax=3",
         "-T",
         "YOUR_USERNAME@YOUR_SERVER_IP",
-        "VIIRS_DUCKDB_PATH=/srv/viirs_database/VIIRS_Thermal_Database.duckdb /srv/github/GMU_DAEN_2025_02_D/Source/MCP/viirs_mcp_wrapper_final.sh"
+        "VIIRS_DUCKDB_PATH=/srv/viirs_database/VIIRS_Thermal_Database.duckdb ./Source/MCP/viirs_mcp_wrapper_final.sh"
       ],
       "transport": "stdio"
     },
@@ -18,10 +18,12 @@
         "-o", "ServerAliveCountMax=3",
         "-T",
         "YOUR_USERNAME@YOUR_SERVER_IP",
-        "/srv/github/GMU_DAEN_2025_02_D/Source/MCP/aqueduct_mcp_wrapper_final.sh"
+        "./Source/MCP/aqueduct_mcp_wrapper_final.sh"
       ],
       "transport": "stdio"
     }
   }
 }
+
+
 

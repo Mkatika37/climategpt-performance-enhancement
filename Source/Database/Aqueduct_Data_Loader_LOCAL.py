@@ -37,3 +37,5 @@ con.execute(f"CREATE TABLE Region_Lookup AS SELECT * FROM read_csv_auto('{CSV_RE
 
 # Close the connection
 con.close()
+
+

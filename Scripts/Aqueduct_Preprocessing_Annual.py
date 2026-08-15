@@ -39,3 +39,5 @@ print(data.isnull().sum())
 print(data.describe(include='all').T)  
 
 data.to_csv("/var/TeamPipeline/Preprocessed/baseline_annual_cleaned.csv", index=False)
+
+

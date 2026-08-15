@@ -37,15 +37,15 @@ OpenStack Server (YOUR_SERVER_IP)
 ### Upload the new adapters:
 
 ```bash
-scp Source/Webapp/viirs_http_adapter_v2.py YOUR_USERNAME@YOUR_SERVER_IP:/srv/github/GMU_DAEN_2025_02_D/Source/Webapp/
-scp Source/Webapp/aqueduct_http_adapter_v2.py YOUR_USERNAME@YOUR_SERVER_IP:/srv/github/GMU_DAEN_2025_02_D/Source/Webapp/
-scp Source/Webapp/start_http_adapters.sh YOUR_USERNAME@YOUR_SERVER_IP:/srv/github/GMU_DAEN_2025_02_D/Source/Webapp/
+scp Source/Webapp/viirs_http_adapter_v2.py YOUR_USERNAME@YOUR_SERVER_IP:./Source/Webapp/
+scp Source/Webapp/aqueduct_http_adapter_v2.py YOUR_USERNAME@YOUR_SERVER_IP:./Source/Webapp/
+scp Source/Webapp/start_http_adapters.sh YOUR_USERNAME@YOUR_SERVER_IP:./Source/Webapp/
 ```
 
 ### Make the start script executable:
 
 ```bash
-ssh YOUR_USERNAME@YOUR_SERVER_IP "chmod +x /srv/github/GMU_DAEN_2025_02_D/Source/Webapp/start_http_adapters.sh"
+ssh YOUR_USERNAME@YOUR_SERVER_IP "chmod +x ./Source/Webapp/start_http_adapters.sh"
 ```
 
 ## Step 2: Start HTTP Adapters on OpenStack
@@ -53,7 +53,7 @@ ssh YOUR_USERNAME@YOUR_SERVER_IP "chmod +x /srv/github/GMU_DAEN_2025_02_D/Source
 ### Option A: Using the start script (Recommended)
 
 ```bash
-ssh YOUR_USERNAME@YOUR_SERVER_IP "/srv/github/GMU_DAEN_2025_02_D/Source/Webapp/start_http_adapters.sh"
+ssh YOUR_USERNAME@YOUR_SERVER_IP "./Source/Webapp/start_http_adapters.sh"
 ```
 
 This starts both adapters in one command!
@@ -63,7 +63,7 @@ This starts both adapters in one command!
 ```bash
 # Terminal 1 - VIIRS
 ssh YOUR_USERNAME@YOUR_SERVER_IP
-cd /srv/github/GMU_DAEN_2025_02_D
+cd .
 source .venv/bin/activate
 export VIIRS_DUCKDB_PATH=/srv/viirs_database/VIIRS_Thermal_Database.duckdb
 cd Source/Webapp
@@ -71,7 +71,7 @@ python viirs_http_adapter_v2.py --host 0.0.0.0 --port 8000
 
 # Terminal 2 - Aqueduct
 ssh YOUR_USERNAME@YOUR_SERVER_IP
-cd /srv/github/GMU_DAEN_2025_02_D
+cd .
 source .venv/bin/activate
 cd Source/Webapp
 python aqueduct_http_adapter_v2.py --host 0.0.0.0 --port 8001
@@ -82,7 +82,7 @@ python aqueduct_http_adapter_v2.py --host 0.0.0.0 --port 8001
 The adapters need `flask-cors` for CORS support:
 
 ```bash
-ssh YOUR_USERNAME@YOUR_SERVER_IP "cd /srv/github/GMU_DAEN_2025_02_D && source .venv/bin/activate && pip install flask-cors"
+ssh YOUR_USERNAME@YOUR_SERVER_IP "cd . && source .venv/bin/activate && pip install flask-cors"
 ```
 
 ## Step 4: Test HTTP Adapters
@@ -193,12 +193,12 @@ Visit http://127.0.0.1:5000 and you have a working ClimateGPT interface!
 
 **Check Python environment:**
 ```bash
-ssh YOUR_USERNAME@YOUR_SERVER_IP "cd /srv/github/GMU_DAEN_2025_02_D && source .venv/bin/activate && python --version && pip list | grep -E '(flask|mcp)'"
+ssh YOUR_USERNAME@YOUR_SERVER_IP "cd . && source .venv/bin/activate && python --version && pip list | grep -E '(flask|mcp)'"
 ```
 
 **Install missing dependencies:**
 ```bash
-ssh YOUR_USERNAME@YOUR_SERVER_IP "cd /srv/github/GMU_DAEN_2025_02_D && source .venv/bin/activate && pip install flask flask-cors"
+ssh YOUR_USERNAME@YOUR_SERVER_IP "cd . && source .venv/bin/activate && pip install flask flask-cors"
 ```
 
 ### Can't connect via tunnel
@@ -245,9 +245,9 @@ After=network.target
 [Service]
 Type=simple
 User=YOUR_USERNAME
-WorkingDirectory=/srv/github/GMU_DAEN_2025_02_D
+WorkingDirectory=.
 Environment="VIIRS_DUCKDB_PATH=/srv/viirs_database/VIIRS_Thermal_Database.duckdb"
-ExecStart=/srv/github/GMU_DAEN_2025_02_D/.venv/bin/python /srv/github/GMU_DAEN_2025_02_D/Source/Webapp/viirs_http_adapter_v2.py --host 0.0.0.0 --port 8000
+ExecStart=./.venv/bin/python ./Source/Webapp/viirs_http_adapter_v2.py --host 0.0.0.0 --port 8000
 Restart=always
 
 [Install]
@@ -286,4 +286,6 @@ sudo systemctl start viirs-http
 2. Create SSH tunnels
 3. Test with curl
 4. Use pipeline_app_v2.py for ClimateGPT interface
+
+
 

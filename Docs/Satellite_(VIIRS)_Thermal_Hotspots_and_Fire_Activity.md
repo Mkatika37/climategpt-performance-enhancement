@@ -25,3 +25,5 @@ Please note: Low confidence nighttime pixels occur only over the geographic area
 
 # Note about near real time data:
 Near real time data is not checked thoroughly before it's posted on LANCE or downloaded and posted to the Living Atlas. NASA's goal is to get vital fire information to its customers within three hours of observation time. However, the data is screened by a confidence algorithm which seeks to help users gauge the quality of individual hotspot/fire points. Low confidence daytime fire pixels are typically associated with areas of sun glint and lower relative temperature anomaly (<15K) in the mid-infrared channel I4. Nominal confidence pixels are those free of potential sun glint contamination during the day and marked by strong (>15K) temperature anomaly in either day or nighttime data. High confidence fire pixels are associated with day or nighttime saturated pixels.
+
+

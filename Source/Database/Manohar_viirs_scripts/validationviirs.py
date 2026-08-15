@@ -18,7 +18,7 @@ from typing import Tuple, Optional
 # ====================================
 # CONFIGURATION
 # ====================================
-DB_PATH = r"C:\Users\ASUS\GMU_DAEN_2025_02_D\Source\Database\VIIRS_Thermal_Database.duckdb"
+DB_PATH = r".\Source\Database\VIIRS_Thermal_Database.duckdb"
 TABLE = "VIIRS_Thermal_Records"
 DEFAULT_BUFFER = 5.0  # degrees around country center
 COL_LAT, COL_LON = "latitude", "longitude"
@@ -130,4 +130,6 @@ if __name__ == "__main__":
         print(f"Which country has more fires — {a} or {b}? {result}")
 
     conn.close()
+
+
 

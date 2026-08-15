@@ -1,6 +1,6 @@
 #!/bin/bash
 # Navigate to project root where uv is installed
-cd /srv/github/GMU_DAEN_2025_02_D
+cd .
 source .venv/bin/activate
 # Navigate to MCP folder
 cd Source/MCP
@@ -12,3 +12,5 @@ echo "Starting viirs_MCP..."
 nohup python viirs_mcp_server.py &
 # Wait for both to finish (optional)
 wait
+
+

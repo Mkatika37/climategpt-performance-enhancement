@@ -29,7 +29,7 @@ curl http://localhost:8000/health
 **If it fails:**
 ```bash
 # Start the SSH tunnel
-cd C:\Users\iruka\Documents\GitHub\GMU_DAEN_2025_02_D\Source\MCP
+cd C:\Users\iruka\Documents\GitHub\climategpt-performance-enhancement\Source\MCP
 start-ssh-tunnel.bat
 ```
 
@@ -37,7 +37,7 @@ start-ssh-tunnel.bat
 
 **Run the test script:**
 ```bash
-cd C:\Users\iruka\Documents\GitHub\GMU_DAEN_2025_02_D\Source\MCP
+cd C:\Users\iruka\Documents\GitHub\climategpt-performance-enhancement\Source\MCP
 test-mcp-http-client.bat
 ```
 
@@ -99,7 +99,7 @@ start-ssh-tunnel.bat
 **Solution:**
 ```bash
 # SSH to server and check adapters
-ssh YOUR_USERNAME@YOUR_SERVER_IP "/srv/github/GMU_DAEN_2025_02_D/Source/Webapp/start_http_adapters.sh"
+ssh YOUR_USERNAME@YOUR_SERVER_IP "./Source/Webapp/start_http_adapters.sh"
 ```
 
 ### Issue 4: MCP Servers Don't Appear in Claude Desktop
@@ -293,4 +293,6 @@ echo {"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"describe_vi
 ```
 
 This isolates whether the problem is with the MCP client or Claude Desktop integration.
+
+
 

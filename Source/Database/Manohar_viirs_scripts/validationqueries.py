@@ -1,7 +1,7 @@
 import duckdb
 
 # --- Connect to your DuckDB file ---
-DB_PATH = r"C:\Users\ASUS\GMU_DAEN_2025_02_D\Source\Database\VIIRS_Thermal_Database.duckdb"
+DB_PATH = r".\Source\Database\VIIRS_Thermal_Database.duckdb"
 conn = duckdb.connect(DB_PATH, read_only=True)
 
 # ---------- Helper functions ----------
@@ -101,4 +101,6 @@ print("How many fires detected between 2025-10-18 to 2025-10-24:", count_between
 
 # ---------- Close connection ----------
 conn.close()
+
+
 

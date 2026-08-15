@@ -12,7 +12,7 @@ export PYTHONUNBUFFERED=1
 export PYTHONDONTWRITEBYTECODE=1
 
 # Change to project directory
-cd /srv/github/GMU_DAEN_2025_02_D
+cd .
 
 # Activate venv
 source .venv/bin/activate
@@ -23,4 +23,6 @@ cd Source/MCP
 # Run MCP server with unbuffered I/O
 # The exec ensures the Python process replaces this shell
 exec python3 -u Aqueduct_Server.py
+
+
 

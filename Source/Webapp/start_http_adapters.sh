@@ -46,7 +46,7 @@ echo ""
 echo "[2/3] Setting up environment..."
 
 # Navigate to project directory
-cd /srv/github/GMU_DAEN_2025_02_D
+cd .
 
 # Activate virtual environment
 source .venv/bin/activate
@@ -103,4 +103,6 @@ trap cleanup SIGINT SIGTERM
 
 # Wait for both processes
 wait
+
+
 

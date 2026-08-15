@@ -13,7 +13,7 @@ CSV_FUTURE_ANNUAL = r"/var/TeamPipeline/Preprocessed/aqueduct_future_annual_clea
 CSV_REGION_LOOKUP = r"/var/TeamPipeline/Preprocessed/final_clean_region_lookup.csv"
 
 # Preprocessing scripts location on the server (absolute path)
-PREPROCESS_SCRIPTS_ROOT = "/srv/github/GMU_DAEN_2025_02_D/Scripts"
+PREPROCESS_SCRIPTS_ROOT = "./Scripts"
 PREPROCESS_SCRIPTS = [
     os.path.join(PREPROCESS_SCRIPTS_ROOT, "Aqueduct_Preprocessing_Annual.py"),
     os.path.join(PREPROCESS_SCRIPTS_ROOT, "Aqueduct_Preprocessing_Monthly.py"),
@@ -93,3 +93,5 @@ if __name__ == "__main__":
 	run_preprocessing_scripts()
 	# Then load into DuckDB
 	load_csvs_into_duckdb()
+
+

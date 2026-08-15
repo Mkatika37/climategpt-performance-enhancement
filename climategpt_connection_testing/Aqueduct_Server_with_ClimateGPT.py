@@ -32,7 +32,7 @@ climate_gpt = get_climate_gpt_client()
 # Database loader path
 AQUEDUCT_LOADER_PATH = os.path.join(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
-    "GMU_DAEN_2025_02_Database",
+    "climategpt-performance-enhancementatabase",
     "Source",
     "Database",
     "Aqueduct_Data_Loader.py"
@@ -418,3 +418,5 @@ def explain_water_stress_indicators(
 if __name__ == "__main__":
     logger.info("Starting Aqueduct Dataset + ClimateGPT MCP Server...")
     app.run()
+
+

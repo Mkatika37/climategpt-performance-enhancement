@@ -30,7 +30,7 @@ This will:
 **In a new terminal (Git Bash or PowerShell):**
 
 ```bash
-ssh YOUR_USERNAME@YOUR_SERVER_IP "/srv/github/GMU_DAEN_2025_02_D/Source/Webapp/start_http_adapters.sh"
+ssh YOUR_USERNAME@YOUR_SERVER_IP "./Source/Webapp/start_http_adapters.sh"
 ```
 
 You should see:
@@ -180,7 +180,7 @@ ssh YOUR_USERNAME@YOUR_SERVER_IP
 ls -la /srv/viirs_database/VIIRS_Thermal_Database.duckdb
 
 # Install missing packages
-cd /srv/github/GMU_DAEN_2025_02_D
+cd .
 source .venv/bin/activate
 pip install flask flask-cors mcp
 ```
@@ -274,4 +274,6 @@ Once working:
 **Estimated Time:** 10 minutes
 **Difficulty:** Easy
 **Success Rate:** Very high (HTTP is reliable!)
+
+
 

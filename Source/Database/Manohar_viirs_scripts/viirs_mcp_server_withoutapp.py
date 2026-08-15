@@ -25,12 +25,12 @@ sys.stderr.flush()
 app = Server("viirs-fire-server")
 
 # Base directory for all VIIRS files (LOCAL PATHS)
-BASE_DIR = Path(r"C:\Users\ASUS\GMU_DAEN_2025_02_D\Source\Database")
+BASE_DIR = Path(r".\Source\Database")
 DB_FILENAME = "VIIRS_Thermal_Database.duckdb"
 DB_PATH = BASE_DIR / DB_FILENAME
 
 # Documentation path (LOCAL PATH)
-DOC_PATH = Path(r"C:\Users\ASUS\GMU_DAEN_2025_02_D\Docs\Satellite_(VIIRS)_Thermal_Hotspots_and_Fire_Activity.md")
+DOC_PATH = Path(r".\Docs\Satellite_(VIIRS)_Thermal_Hotspots_and_Fire_Activity.md")
 
 # Script directory
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -102,7 +102,7 @@ def get_db_connection():
 
     global DB_PATH
     DB_PATH = chosen.resolve()
-    print(f"Connected to DuckDB at: {DB_PATH}", file=sys.stderr)
+    print(f"✓ Connecting to DuckDB at: {DB_PATH}", file=sys.stderr)
     sys.stderr.flush()
 
     return duckdb.connect(str(DB_PATH), read_only=True)
@@ -257,59 +257,37 @@ def get_bounding_box(place_name: str, buffer_deg: float = 0.5):
         lon - buffer_deg,  # min_lon
         lon + buffer_deg   # max_lon
     )
+
 @app.list_tools()
 async def list_tools() -> list[Tool]:
     """List available tools for querying VIIRS fire data"""
     return [
-        # ========== DATASET INFORMATION TOOLS ==========
         Tool(
             name="describe_viirs_dataset",
-            description=(
-                "WHEN TO USE: User asks about the dataset itself, available columns, data structure, or what information is available. "
-                "DO NOT USE for querying actual fire data. "
-                "EXAMPLES: 'What data do you have?', 'Tell me about the VIIRS dataset', 'What columns are available?', 'Describe the database schema'. "
-                "RETURNS: Metadata including row count, column names, data types, field descriptions, and documentation links."
-            ),
+            description="Return metadata and documentation URIs for the VIIRS Thermal Fire Dataset.",
             inputSchema={
                 "type": "object",
                 "properties": {},
                 "required": []
             }
         ),
-        Tool(
-            name="summarize_viirs_docs",
-            description=(
-                "WHEN TO USE: User asks for documentation summary, technical details about VIIRS sensors, or methodological information. "
-                "DO NOT USE for fire data queries. "
-                "EXAMPLES: 'Summarize the documentation', 'How does VIIRS detect fires?', 'What are the technical specifications?'. "
-                "RETURNS: Key sections and headings from the local documentation file."
-            ),
-            inputSchema={
-                "type": "object",
-                "properties": {},
-                "required": []
-            }   
-        ),
-        
-        # ========== COUNTING TOOLS (Return only numbers, no detailed records) ==========
+        # NEW: Count tools using acquisition_timestamp
         Tool(
             name="count_viirs_fires_by_date",
             description=(
-                "WHEN TO USE: User asks 'how many fires' on a SPECIFIC SINGLE DATE. This is the PREFERRED tool for single-date counts. "
-                "DO NOT USE for date ranges (use count_viirs_fires_by_date_range instead) or relative time periods (use count_viirs_fires_by_days instead). "
-                "EXAMPLES: 'How many fires on October 20, 2025?', 'Count fires detected on 2025-10-20', 'Fire count for Nov 5'. "
-                "RETURNS: Simple count of fires detected on that exact date (00:00:00 to 23:59:59)."
+                "Count fire detections on a specific date (YYYY-MM-DD format) using acquisition_timestamp. "
+                "Use this for queries like: 'how many fires on October 20, 2025'."
             ),
             inputSchema={
                 "type": "object",
                 "properties": {
                     "date": {
                         "type": "string",
-                        "description": "Single date in YYYY-MM-DD format (e.g., '2025-10-20'). Must be exact date format."
+                        "description": "Date in YYYY-MM-DD format (e.g., '2025-10-20')"
                     },
                     "min_confidence": {
                         "type": "string",
-                        "description": "Filter by minimum confidence level. Use 'all' unless user specifically mentions confidence filtering.",
+                        "description": "Minimum confidence level",
                         "enum": ["low", "nominal", "high", "all"],
                         "default": "all"
                     }
@@ -320,25 +298,22 @@ async def list_tools() -> list[Tool]:
         Tool(
             name="count_viirs_fires_by_date_range",
             description=(
-                "WHEN TO USE: User asks 'how many fires' BETWEEN two specific dates (inclusive). "
-                "DO NOT USE for single dates (use count_viirs_fires_by_date) or relative periods like 'last 7 days' (use count_viirs_fires_by_days). "
-                "EXAMPLES: 'Fires between October 20 and October 22', 'Count from 2025-10-01 to 2025-10-31', 'How many fires in the date range X to Y?'. "
-                "RETURNS: Total count across the date range plus number of days covered."
+                "Count fire detections between two dates (both inclusive) using acquisition_timestamp. "
+                "Use for: 'fires between October 20 and October 22'."
             ),
             inputSchema={
                 "type": "object",
                 "properties": {
                     "start_date": {
                         "type": "string",
-                        "description": "Start date (inclusive) in YYYY-MM-DD format. First day to include in count."
+                        "description": "Start date in YYYY-MM-DD format"
                     },
                     "end_date": {
                         "type": "string",
-                        "description": "End date (inclusive) in YYYY-MM-DD format. Last day to include in count."
+                        "description": "End date in YYYY-MM-DD format"
                     },
                     "min_confidence": {
                         "type": "string",
-                        "description": "Filter by confidence level. Default 'all' includes all confidence levels.",
                         "enum": ["low", "nominal", "high", "all"],
                         "default": "all"
                     }
@@ -349,21 +324,18 @@ async def list_tools() -> list[Tool]:
         Tool(
             name="count_viirs_fires_by_days",
             description=(
-                "WHEN TO USE: User asks 'how many fires' in the LAST/RECENT N days, hours, or weeks (relative to now). "
-                "DO NOT USE for specific dates (use count_viirs_fires_by_date or count_viirs_fires_by_date_range). "
-                "EXAMPLES: 'Fires in the last 7 days', 'How many in the past 24 hours?', 'Last week fire count', 'Recent 3 days'. "
-                "RETURNS: Count from N days ago until now, with cutoff timestamp."
+                "Count fire detections from the last N days using acquisition_timestamp. "
+                "Use for: 'how many fires in last 7 days', 'fires in last 24 hours'."
             ),
             inputSchema={
                 "type": "object",
                 "properties": {
                     "days_back": {
                         "type": "number",
-                        "description": "Number of days to look back from now. Can be fractional (e.g., 0.5 = 12 hours, 7 = one week, 0.04 = 1 hour). Always calculate from current time backwards."
+                        "description": "Days to look back (e.g., 7, 1, 0.5 for 12 hours)"
                     },
                     "min_confidence": {
                         "type": "string",
-                        "description": "Confidence filter. Use 'all' unless user specifies otherwise.",
                         "enum": ["low", "nominal", "high", "all"],
                         "default": "all"
                     }
@@ -372,63 +344,25 @@ async def list_tools() -> list[Tool]:
             },
         ),
         Tool(
-            name="count_viirs_by_place",
-            description=(
-                "WHEN TO USE: User asks 'how many fires NEAR/AROUND a location' (returns count only, no fire details). "
-                "DO NOT USE if user wants detailed fire information (use query_viirs_by_place instead). "
-                "DO NOT USE if user wants coordinates (use get_coordinates instead). "
-                "EXAMPLES: 'How many fires near Portland?', 'Count fires around Los Angeles', 'Fire count near Tokyo'. "
-                "RETURNS: Simple count of fires within the bounding box around the location."
-            ),
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "place_name": {
-                        "type": "string",
-                        "description": "Name of city, region, or landmark. Will be geocoded to coordinates automatically. Examples: 'Los Angeles', 'Amazon Rainforest', 'Sydney'."
-                    },
-                    "buffer_deg": {
-                        "type": "number",
-                        "description": "Search radius in degrees (roughly 111km per degree at equator). Default 0.5 deg = 55km radius. Increase for larger areas, decrease for city-level precision.",
-                        "default": 0.5
-                    },
-                    "min_confidence": {
-                        "type": "string",
-                        "description": "Minimum confidence threshold. 'nominal' excludes low-confidence detections.",
-                        "enum": ["low", "nominal"],
-                        "default": "nominal"
-                    }
-                },
-                "required": ["place_name"]
-            }
-        ),
-        # ========== DETAILED QUERY TOOLS (Return full fire records with lat/lon/intensity) ==========
-        Tool(
             name="query_recent_fires",
-            description=(
-                "WHEN TO USE: User wants DETAILED INFORMATION about recent fires (location, temperature, intensity) within last N hours. "
-                "DO NOT USE if user only wants a count (use count_viirs_fires_by_days instead). "
-                "DO NOT USE for location-based queries (use query_viirs_by_place or query_fires_by_location instead). "
-                "EXAMPLES: 'Show me recent fires', 'What fires were detected in the last 24 hours?', 'List recent fire detections with details'. "
-                "RETURNS: Up to 100 fire records with coordinates, brightness temperatures, FRP, confidence, and satellite info."
-            ),
+            description="Get recent fire detections within the last N hours. Returns location, intensity, and confidence data.",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "hours": {
                         "type": "integer",
-                        "description": "Number of hours to look back from now. Common values: 24 (last day), 48 (last 2 days), 72 (last 3 days).",
+                        "description": "Number of hours to look back (e.g., 24 for last day)",
                         "default": 24
                     },
                     "min_confidence": {
                         "type": "string",
-                        "description": "Minimum confidence level. 'nominal' is recommended to exclude false positives.",
+                        "description": "Minimum confidence level: 'low' or 'nominal'",
                         "enum": ["low", "nominal"],
                         "default": "nominal"
                     },
                     "limit": {
                         "type": "integer",
-                        "description": "Maximum number of fire records to return. Default 100. Increase for comprehensive analysis, decrease for quick overview.",
+                        "description": "Maximum number of results to return",
                         "default": 100
                     }
                 },
@@ -436,356 +370,183 @@ async def list_tools() -> list[Tool]:
             }
         ),
         Tool(
-            name="query_viirs_by_place",
-            description=(
-                "WHEN TO USE: User wants DETAILED fire records NEAR/AROUND a named location (city, region, landmark). "
-                "DO NOT USE if user only wants count (use count_viirs_by_place instead). "
-                "DO NOT USE if user provides coordinates directly (use query_fires_by_location instead). "
-                "EXAMPLES: 'Show fires near Los Angeles', 'Fire details around Amazon', 'What fires are burning near Sydney?'. "
-                "RETURNS: Detailed fire records (lat/lon, temperatures, FRP) within bounding box, sorted by intensity."
-            ),
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "place_name": {
-                        "type": "string",
-                        "description": "Location name to geocode. Can be city, region, country, or landmark. Examples: 'California', 'Mount Etna', 'Amazon Rainforest'."
-                    },
-                    "buffer_deg": {
-                        "type": "number",
-                        "description": "Search radius in degrees. 0.5 deg = 55km, 1.0 deg = 111km, 2.0 deg = 222km. Adjust based on area size.",
-                        "default": 0.5
-                    },
-                    "limit": {
-                        "type": "integer",
-                        "description": "Maximum fire records to return. 100 is default, increase for thorough analysis.",
-                        "default": 100
-                    },
-                    "min_confidence": {
-                        "type": "string",
-                        "description": "Confidence threshold. 'nominal' recommended for reliable detections.",
-                        "enum": ["low", "nominal"],
-                        "default": "nominal"
-                    }
-                },
-                "required": ["place_name"]
-            }
-        ),
-        Tool(
             name="query_fires_by_location",
-            description=(
-                "WHEN TO USE: User provides SPECIFIC LAT/LON COORDINATES for a bounding box query. "
-                "DO NOT USE if user provides place names (use query_viirs_by_place instead). "
-                "DO NOT USE if user only wants count (use custom query with COUNT instead). "
-                "EXAMPLES: 'Fires between lat 34-36 and lon -119 to -117', 'Query bounding box 10,20,15,25', 'Search coordinates...'. "
-                "RETURNS: Detailed fire records within the exact geographic bounds specified."
-            ),
+            description="Query fires within a geographic bounding box (latitude/longitude coordinates)",
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "min_lat": {
-                        "type": "number",
-                        "description": "Southern boundary latitude in decimal degrees. Range: -90 to 90. Negative = South, Positive = North."
-                    },
-                    "max_lat": {
-                        "type": "number",
-                        "description": "Northern boundary latitude in decimal degrees. Must be greater than min_lat."
-                    },
-                    "min_lon": {
-                        "type": "number",
-                        "description": "Western boundary longitude in decimal degrees. Range: -180 to 180. Negative = West, Positive = East."
-                    },
-                    "max_lon": {
-                        "type": "number",
-                        "description": "Eastern boundary longitude in decimal degrees. Must be greater than min_lon."
-                    },
-                    "start_date": {
-                        "type": "string",
-                        "description": "Optional: Filter to fires on or after this date (YYYY-MM-DD format). Omit to include all historical data."
-                    },
-                    "end_date": {
-                        "type": "string",
-                        "description": "Optional: Filter to fires on or before this date (YYYY-MM-DD format). Omit to include up to present."
-                    },
-                    "limit": {
-                        "type": "integer",
-                        "description": "Maximum records to return. Default 100.",
-                        "default": 100
-                    }
+                    "min_lat": {"type": "number"},
+                    "max_lat": {"type": "number"},
+                    "min_lon": {"type": "number"},
+                    "max_lon": {"type": "number"},
+                    "start_date": {"type": "string"},
+                    "end_date": {"type": "string"},
+                    "limit": {"type": "integer", "default": 100}
                 },
                 "required": ["min_lat", "max_lat", "min_lon", "max_lon"]
             }
         ),
         Tool(
             name="query_high_intensity_fires",
-            description=(
-                "WHEN TO USE: User specifically asks for HIGH INTENSITY, LARGE, or SEVERE fires based on Fire Radiative Power (FRP). "
-                "DO NOT USE for general fire queries (use query_recent_fires instead). "
-                "EXAMPLES: 'Show me the most intense fires', 'Large fires with high FRP', 'Severe fire events', 'Biggest fires detected'. "
-                "RETURNS: Fires sorted by FRP (megawatts), highest first. Higher FRP = more intense burning."
-            ),
+            description="Get high-intensity fires based on Fire Radiative Power (FRP) threshold",
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "min_frp": {
-                        "type": "number",
-                        "description": "Minimum Fire Radiative Power in megawatts (MW). Typical thresholds: 10 MW = moderate, 20 MW = high, 50+ MW = extreme. Default 20.",
-                        "default": 20
-                    },
-                    "hours": {
-                        "type": "integer",
-                        "description": "Time window in hours to search. Default 72 (last 3 days).",
-                        "default": 72
-                    },
-                    "limit": {
-                        "type": "integer",
-                        "description": "Maximum records. Default 50 since high-intensity fires are rarer.",
-                        "default": 50
-                    }
+                    "min_frp": {"type": "number", "default": 20},
+                    "hours": {"type": "integer", "default": 72},
+                    "limit": {"type": "integer", "default": 50}
+                },
+                "required": []
+            }
+        ),
+        Tool(
+            name="get_fire_statistics",
+            description="Get summary statistics about fire detections",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "time_period_hours": {"type": "integer", "default": 24}
                 },
                 "required": []
             }
         ),
         Tool(
             name="query_fires_by_date",
-            description=(
-                "WHEN TO USE: User wants DETAILED fire records for a specific date or date range. "
-                "DO NOT USE if user only wants count (use count_viirs_fires_by_date or count_viirs_fires_by_date_range instead). "
-                "EXAMPLES: 'Show all fires on October 20', 'List fire detections from Oct 1-10', 'Get fire records for last Monday'. "
-                "RETURNS: Detailed fire records with all attributes for the specified date(s)."
-            ),
+            description="Query fires detected on a specific date or date range",
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "start_date": {
-                        "type": "string",
-                        "description": "Start date in YYYY-MM-DD format. For single date query, this is the only date needed."
-                    },
-                    "end_date": {
-                        "type": "string",
-                        "description": "Optional end date in YYYY-MM-DD format. If omitted, only start_date is queried."
-                    },
-                    "confidence": {
-                        "type": "string",
-                        "description": "Confidence level filter. 'all' includes everything, 'nominal' is higher quality.",
-                        "enum": ["low", "nominal", "all"],
-                        "default": "all"
-                    },
-                    "limit": {
-                        "type": "integer",
-                        "description": "Maximum records to return. Default 100.",
-                        "default": 100
-                    }
+                    "start_date": {"type": "string"},
+                    "end_date": {"type": "string"},
+                    "confidence": {"type": "string", "enum": ["low", "nominal", "all"], "default": "all"},
+                    "limit": {"type": "integer", "default": 100}
                 },
                 "required": ["start_date"]
             }
         ),
-        
-        # ========== STATISTICS & SUMMARY TOOLS ==========
         Tool(
-            name="get_fire_statistics",
-            description=(
-                "WHEN TO USE: User asks for SUMMARY STATISTICS, AGGREGATED DATA, or OVERVIEW of fire activity (averages, totals, distributions). "
-                "DO NOT USE if user wants individual fire records (use query tools instead). "
-                "DO NOT USE if user wants only count (use count tools instead). "
-                "EXAMPLES: 'Fire statistics for last 24 hours', 'Average fire intensity', 'Summary of recent activity', 'Distribution of confidence levels'. "
-                "RETURNS: Aggregate statistics including total count, average/max/min FRP, brightness, confidence breakdown, day/night distribution."
-            ),
+            name="execute_custom_query",
+            description="Execute a custom SQL query on the VIIRS fire database. Table name is VIIRS_Thermal_Records.",
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "time_period_hours": {
-                        "type": "integer",
-                        "description": "Time window in hours for statistics calculation. Default 24 (last day). Use 168 for last week.",
-                        "default": 24
-                    }
+                    "sql": {"type": "string"}
                 },
-                "required": []
+                "required": ["sql"]
             }
         ),
-        
-        # ========== GHG EMISSIONS TOOLS ==========
-        Tool(
-            name="calculate_fire_ghg_emissions",
-            description=(
-                "WHEN TO USE: User asks to calculate greenhouse gas emissions for A SINGLE FIRE when FRP and duration are known. "
-                "DO NOT USE for multiple fires or geographic areas (use calculate_ghg_emissions_by_location or calculate_ghg_emissions_by_place instead). "
-                "EXAMPLES: 'Calculate emissions for a fire with 50 MW FRP burning 10 hours', 'GHG output for this fire', 'CO2 from 25 MW fire'. "
-                "RETURNS: Detailed GHG breakdown (CO2, CH4, N2O, CO) in kg and CO2-equivalent tonnes."
-            ),
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "frp": {
-                        "type": "number",
-                        "description": "Fire Radiative Power in megawatts (MW). This value comes from FRP field in fire records."
-                    },
-                    "hours_old": {
-                        "type": "number",
-                        "description": "Fire duration in hours. This represents how long the fire has been burning or was burning."
-                    }
-                },
-                "required": ["frp", "hours_old"]
-            }
-        ),
-        Tool(
-            name="calculate_ghg_emissions_by_location",
-            description=(
-                "WHEN TO USE: User asks for TOTAL greenhouse gas emissions within SPECIFIC LAT/LON COORDINATES (bounding box). "
-                "DO NOT USE if user provides place name (use calculate_ghg_emissions_by_place instead). "
-                "DO NOT USE for single fire (use calculate_fire_ghg_emissions instead). "
-                "EXAMPLES: 'Total emissions between lat 34-36, lon -120 to -118', 'GHG output for bounding box', 'Calculate emissions in coordinate range'. "
-                "RETURNS: Aggregated GHG totals for all fires in the area, including per-fire average and total CO2e."
-            ),
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "min_lat": {
-                        "type": "number",
-                        "description": "Southern latitude boundary (decimal degrees, -90 to 90)."
-                    },
-                    "max_lat": {
-                        "type": "number",
-                        "description": "Northern latitude boundary (must be > min_lat)."
-                    },
-                    "min_lon": {
-                        "type": "number",
-                        "description": "Western longitude boundary (decimal degrees, -180 to 180)."
-                    },
-                    "max_lon": {
-                        "type": "number",
-                        "description": "Eastern longitude boundary (must be > min_lon)."
-                    },
-                    "start_date": {
-                        "type": "string",
-                        "description": "Optional: Include only fires on/after this date (YYYY-MM-DD)."
-                    },
-                    "end_date": {
-                        "type": "string",
-                        "description": "Optional: Include only fires on/before this date (YYYY-MM-DD)."
-                    }
-                },
-                "required": ["min_lat", "max_lat", "min_lon", "max_lon"]
-            }
-        ),
-        Tool(
-            name="calculate_ghg_emissions_by_place",
-            description=(
-                "WHEN TO USE: User asks for greenhouse gas emissions NEAR/AROUND a NAMED LOCATION (city, region, etc.). "
-                "DO NOT USE if user provides coordinates (use calculate_ghg_emissions_by_location instead). "
-                "DO NOT USE for single fire (use calculate_fire_ghg_emissions instead). "
-                "EXAMPLES: 'GHG emissions from fires near Los Angeles', 'Total CO2 from fires around Amazon', 'Calculate emissions near Portland'. "
-                "RETURNS: Total GHG emissions for all fires in the area over specified time period, with breakdown by gas type."
-            ),
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "place_name": {
-                        "type": "string",
-                        "description": "Location name (city, region, landmark) to calculate emissions around. Will be geocoded automatically."
-                    },
-                    "buffer_deg": {
-                        "type": "number",
-                        "description": "Search radius in degrees. Default 0.5 deg = 55km. Increase for larger regions.",
-                        "default": 0.5
-                    },
-                    "days_back": {
-                        "type": "integer",
-                        "description": "Number of days to look back from now. Default 7 (last week). Use 30 for monthly analysis.",
-                        "default": 7
-                    }
-                },
-                "required": ["place_name"]
-            }
-        ),
-        Tool(
-            name="get_ghg_emissions_summary",
-            description=(
-                "WHEN TO USE: User asks for OVERALL/TOTAL greenhouse gas emissions summary for recent global fire activity. "
-                "DO NOT USE if user specifies location (use calculate_ghg_emissions_by_place or calculate_ghg_emissions_by_location instead). "
-                "EXAMPLES: 'Total global fire emissions today', 'GHG summary for last 24 hours', 'Overall emissions from recent fires'. "
-                "RETURNS: Global aggregated GHG totals for all fires in time period, with per-fire average."
-            ),
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "time_period_hours": {
-                        "type": "integer",
-                        "description": "Time window in hours. Default 24 (last day). Use 168 for last week.",
-                        "default": 24
-                    }
-                },
-                "required": []
-            }
-        ),
-        
-        # ========== GEOCODING HELPER TOOLS ==========
         Tool(
             name="get_coordinates",
-            description=(
-                "WHEN TO USE: User asks to CONVERT a place name TO coordinates (lat/lon only, no fire data). "
-                "DO NOT USE if user wants fire data (use query_viirs_by_place or count_viirs_by_place instead). "
-                "EXAMPLES: 'What are the coordinates of Los Angeles?', 'Find lat/lon for Tokyo', 'Convert Portland to coordinates'. "
-                "RETURNS: Latitude and longitude decimal degrees for the location."
-            ),
+            description="Convert a place name into latitude and longitude.",
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "place_name": {
-                        "type": "string",
-                        "description": "Location name to geocode. Examples: 'Paris, France', 'Mount Fuji', 'Amazon Rainforest'."
-                    }
+                    "place_name": {"type": "string"}
                 },
                 "required": ["place_name"]
             }
         ),
         Tool(
             name="get_bounding_box",
-            description=(
-                "WHEN TO USE: User asks for a BOUNDING BOX (coordinate boundaries) around a location (no fire data). "
-                "DO NOT USE if user wants fire data (use query_viirs_by_place instead). "
-                "EXAMPLES: 'Get bounding box for California', 'What are the coordinate bounds for London?', 'Define search area for Amazon'. "
-                "RETURNS: Min/max latitude and longitude defining a rectangular area around the location."
-            ),
+            description="Return a bounding box around a place name.",
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "place_name": {
-                        "type": "string",
-                        "description": "Location to create bounding box around."
-                    },
-                    "buffer_deg": {
-                        "type": "number",
-                        "description": "Buffer distance in degrees. Default 0.5 deg creates ~111km x 111km box at equator.",
-                        "default": 0.5
-                    }
+                    "place_name": {"type": "string"},
+                    "buffer_deg": {"type": "number", "default": 0.5}
                 },
                 "required": ["place_name"]
             }
         ),
-        
-        # ========== ADVANCED/CUSTOM QUERY TOOL ==========
         Tool(
-            name="execute_custom_query",
-            description=(
-                "WHEN TO USE: ONLY when existing tools cannot answer the query, OR user explicitly requests custom SQL. This is a FALLBACK tool. "
-                "DO NOT USE if any other tool can accomplish the task. "
-                "EXAMPLES: 'Run custom SQL: SELECT...', 'Complex query with JOIN', 'I need to write my own query'. "
-                "SECURITY: Only SELECT statements allowed. Table name is VIIRS_Thermal_Records. "
-                "RETURNS: Raw query results."
-            ),
+            name="query_viirs_by_place",
+            description="Query VIIRS fire data using a bounding box around a place name.",
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "sql": {
-                        "type": "string",
-                        "description": "SELECT query to execute. Must start with SELECT. Table name: VIIRS_Thermal_Records. Available columns: uid, latitude, longitude, brightness_temp_i4, brightness_temp_i5, frp_mw, confidence, acquisition_timestamp, satellite, hours_old, day_night, acq_date, acq_time."
-                    }
+                    "place_name": {"type": "string"},
+                    "buffer_deg": {"type": "number", "default": 0.5},
+                    "limit": {"type": "integer", "default": 100},
+                    "min_confidence": {"type": "string", "enum": ["low", "nominal"], "default": "nominal"}
                 },
-                "required": ["sql"]
+                "required": ["place_name"]
+            }
+        ),
+        Tool(
+            name="count_viirs_by_place",
+            description="Count fires near a location. Use for 'how many fires near X' queries.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "place_name": {"type": "string"},
+                    "buffer_deg": {"type": "number", "default": 0.5},
+                    "min_confidence": {"type": "string", "enum": ["low", "nominal"], "default": "nominal"}
+                },
+                "required": ["place_name"]
+            }
+        ),
+        Tool(
+            name="summarize_viirs_docs",
+            description="Summarize the local VIIRS documentation file.",
+            inputSchema={
+                "type": "object",
+                "properties": {},
+                "required": []
+            }   
+        ),
+        Tool(
+            name="calculate_fire_ghg_emissions",
+            description="Calculate GHG emissions for a single fire.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "frp": {"type": "number"},
+                    "hours_old": {"type": "number"}
+                },
+                "required": ["frp", "hours_old"]
+            }
+        ),
+        Tool(
+            name="calculate_ghg_emissions_by_location",
+            description="Calculate total GHG emissions for fires in a geographic area",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "min_lat": {"type": "number"},
+                    "max_lat": {"type": "number"},
+                    "min_lon": {"type": "number"},
+                    "max_lon": {"type": "number"},
+                    "start_date": {"type": "string"},
+                    "end_date": {"type": "string"}
+                },
+                "required": ["min_lat", "max_lat", "min_lon", "max_lon"]
+            }
+        ),
+        Tool(
+            name="calculate_ghg_emissions_by_place",
+            description="Calculate total GHG emissions for fires near a location",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "place_name": {"type": "string"},
+                    "buffer_deg": {"type": "number", "default": 0.5},
+                    "days_back": {"type": "integer", "default": 7}
+                },
+                "required": ["place_name"]
+            }
+        ),
+        Tool(
+            name="get_ghg_emissions_summary",
+            description="Get GHG emissions summary for recent fires",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "time_period_hours": {"type": "integer", "default": 24}
+                }
             }
         )
     ]
+
 # NEW: Helper functions for counting tools using acquisition_timestamp
 async def run_count_fires_by_date(params: dict[str, Any]) -> TextContent:
     """Count fires on a specific date using acquisition_timestamp"""
@@ -901,7 +662,7 @@ async def run_get_bounding_box(params: dict[str, Any]) -> TextContent:
     max_lon = lon + buffer_deg
 
     return TextContent(type="text", text=(
-        f"Bounding box for '{place_name}' with buffer {buffer_deg} deg:\n"
+        f"Bounding box for '{place_name}' with buffer {buffer_deg}°:\n"
         f"Latitude: {min_lat} to {max_lat}\n"
         f"Longitude: {min_lon} to {max_lon}"
     ))
@@ -1001,11 +762,11 @@ async def run_describe_viirs_dataset(_: dict[str, Any]) -> TextContent:
     }
 
     output = [
-        f"Dataset: {metadata['name']}",
-        f"Rows: {metadata['rows']}",
-        f"Columns: {', '.join(metadata['columns'])}",
-        f"Documentation: {', '.join(metadata['uris'])}",
-        "\nDescription:\n" + metadata["description"]
+        f" Dataset: {metadata['name']}",
+        f" Rows: {metadata['rows']}",
+        f" Columns: {', '.join(metadata['columns'])}",
+        f" Documentation: {', '.join(metadata['uris'])}",
+        "\n Description:\n" + metadata["description"]
     ]
     return TextContent(type="text", text="\n".join(output))
 
@@ -1272,8 +1033,8 @@ async def call_tool(name: str, arguments: Any) -> list[TextContent]:
             output = [
                 "=== REGIONAL GHG EMISSIONS SUMMARY ===\n",
                 f"Geographic Bounds:",
-                f"  Latitude: {min_lat} deg to {max_lat} deg",
-                f"  Longitude: {min_lon} deg to {max_lon} deg",
+                f"  Latitude: {min_lat}° to {max_lat}°",
+                f"  Longitude: {min_lon}° to {max_lon}°",
                 f"Number of Fire Detections: {len(results)}",
                 f"Total Energy Released: {total_energy:,.2f} MJ\n",
                 "--- Total Emissions ---",
@@ -1337,8 +1098,8 @@ async def call_tool(name: str, arguments: Any) -> list[TextContent]:
             output = [
                 f"=== GHG EMISSIONS FOR {place_name.upper()} ===\n",
                 f"Location: {place_name}",
-                f"Center: {(min_lat+max_lat)/2:.4f} deg, {(min_lon+max_lon)/2:.4f} deg",
-                f"Search Radius: +/-{buffer_deg} deg",
+                f"Center: {(min_lat+max_lat)/2:.4f}°, {(min_lon+max_lon)/2:.4f}°",
+                f"Search Radius: ±{buffer_deg}°",
                 f"Time Period: Last {days_back} days",
                 f"Number of Fire Detections: {len(results)}",
                 f"Total Energy Released: {total_energy:,.2f} MJ\n",
@@ -1481,3 +1242,5 @@ if __name__ == "__main__":
         traceback.print_exc(file=sys.stderr)
         sys.stderr.flush()
         sys.exit(1)
+
+

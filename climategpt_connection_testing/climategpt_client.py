@@ -16,8 +16,8 @@ CLIMATEGPT_AUTH = ("ai", "4climate")
 CLIMATEGPT_MODEL = "/cache/climategpt_8b_test"
 
 # MCP Server Paths - Windows Paths
-VIIRS_SERVER_PATH = r"C:\Users\sthut\OneDrive\Desktop\CAPSTONE\GMU_DAEN_2025_02_D\Source\MCP\viirs_mcp_server.py"
-DUCKDB_SERVER_PATH = r"C:\Users\sthut\OneDrive\Desktop\CAPSTONE\GMU_DAEN_2025_02_D\Source\MCP\Aqueduct_Server.py"
+VIIRS_SERVER_PATH = r"C:\Users\sthut\OneDrive\Desktop\CAPSTONE\climategpt-performance-enhancement\Source\MCP\viirs_mcp_server.py"
+DUCKDB_SERVER_PATH = r"C:\Users\sthut\OneDrive\Desktop\CAPSTONE\climategpt-performance-enhancement\Source\MCP\Aqueduct_Server.py"
 
 class MCPClient:
     """Client to interact with local MCP servers via stdio"""
@@ -335,3 +335,5 @@ if __name__ == "__main__":
         interactive_mode()
     else:
         main()
+
+

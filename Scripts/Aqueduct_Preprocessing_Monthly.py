@@ -70,3 +70,5 @@ print((df == 'NA').sum())  # 'NA' as string
 
 # Save cleaned dataframe to CSV
 df.to_csv("/var/TeamPipeline/Preprocessed/Aqueduct_monthly_cleaned.csv", index=False)
+
+

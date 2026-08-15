@@ -213,3 +213,5 @@ Future projections includes 4 risk indicators, as well as projected supply and d
 
 For example the layer {bau30_ws_x_r} is "projected raw water stress by the year 2030 under a business as usual (ssp2 rcp70) scenario"	 
 
+
+

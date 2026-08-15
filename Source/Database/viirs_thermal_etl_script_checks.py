@@ -231,3 +231,5 @@ if __name__ == "__main__":
     export_df_with_date(clean_data, base_name="VIIRS_Cleaned_Data", folder_path="/srv/viirs_logs")
     #Load
     load_to_duckdb(clean_data)
+
+

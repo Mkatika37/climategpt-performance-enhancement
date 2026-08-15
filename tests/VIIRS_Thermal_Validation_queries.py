@@ -287,3 +287,5 @@ for c1, c2 in country_pairs:
     print(result)
 
 conn.close()
+
+

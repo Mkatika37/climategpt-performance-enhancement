@@ -37,3 +37,5 @@ EXPOSE 8080
 # The startup command: Uvicorn runs your FastAPI application
 # Format: uvicorn <module_path>:<app_instance_name>
 CMD ["uvicorn", "Source.MCP.Aqueduct_Server:app", "--host", "0.0.0.0", "--port", "8080"]
+
+

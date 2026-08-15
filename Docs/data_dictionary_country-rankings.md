@@ -212,3 +212,5 @@ Full| Period |
 |**one**| Ones, i.e. no weights |
 
 
+
+

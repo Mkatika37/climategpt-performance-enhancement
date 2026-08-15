@@ -30,7 +30,7 @@ DuckDB databases
 
 **Option A: Using the batch script**
 ```batch
-cd C:\Users\iruka\Documents\GitHub\GMU_DAEN_2025_02_D\Source\MCP
+cd C:\Users\iruka\Documents\GitHub\climategpt-performance-enhancement\Source\MCP
 start-ssh-tunnel.bat
 ```
 
@@ -61,7 +61,7 @@ If these fail, the HTTP adapters aren't running on the OpenStack server. SSH in 
 
 ```bash
 ssh YOUR_USERNAME@YOUR_SERVER_IP
-cd /srv/github/GMU_DAEN_2025_02_D/Source/Webapp
+cd ./Source/Webapp
 ./start_http_adapters.sh
 ```
 
@@ -70,7 +70,7 @@ cd /srv/github/GMU_DAEN_2025_02_D/Source/Webapp
 Test the bridge script manually:
 
 ```bash
-echo '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}' | node C:\Users\iruka\Documents\GitHub\GMU_DAEN_2025_02_D\Source\MCP\mcp-http-client.js http://localhost:8000
+echo '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}' | node C:\Users\iruka\Documents\GitHub\climategpt-performance-enhancement\Source\MCP\mcp-http-client.js http://localhost:8000
 ```
 
 You should see a JSON response with the list of VIIRS tools.
@@ -89,14 +89,14 @@ It now contains:
     "viirs_http": {
       "command": "node",
       "args": [
-        "C:\\Users\\iruka\\Documents\\GitHub\\GMU_DAEN_2025_02_D\\Source\\MCP\\mcp-http-client.js",
+        "C:\\Users\\iruka\\Documents\\GitHub\\climategpt-performance-enhancement\\Source\\MCP\\mcp-http-client.js",
         "http://localhost:8000"
       ]
     },
     "aqueduct_http": {
       "command": "node",
       "args": [
-        "C:\\Users\\iruka\\Documents\\GitHub\\GMU_DAEN_2025_02_D\\Source\\MCP\\mcp-http-client.js",
+        "C:\\Users\\iruka\\Documents\\GitHub\\climategpt-performance-enhancement\\Source\\MCP\\mcp-http-client.js",
         "http://localhost:8001"
       ]
     }
@@ -129,7 +129,7 @@ Claude should now be able to use the VIIRS and Aqueduct MCP tools!
 
 **Solution:** Restart the SSH tunnel:
 ```bash
-cd C:\Users\iruka\Documents\GitHub\GMU_DAEN_2025_02_D\Source\MCP
+cd C:\Users\iruka\Documents\GitHub\climategpt-performance-enhancement\Source\MCP
 start-ssh-tunnel.bat
 ```
 
@@ -140,7 +140,7 @@ start-ssh-tunnel.bat
 **Solution:** SSH to server and restart adapters:
 ```bash
 ssh YOUR_USERNAME@YOUR_SERVER_IP
-cd /srv/github/GMU_DAEN_2025_02_D/Source/Webapp
+cd ./Source/Webapp
 pkill -f viirs_http_adapter
 pkill -f aqueduct_http_adapter
 ./start_http_adapters.sh
@@ -228,4 +228,6 @@ echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}' | node mcp-htt
 - [HTTP_ADAPTER_SETUP.md](../../Webapp/HTTP_ADAPTER_SETUP.md) - HTTP adapter details
 - [QUICK_START_HTTP.md](../../Webapp/QUICK_START_HTTP.md) - HTTP adapter quick start
 - [PROMPT_ENGINEERING_FIX.md](../../Webapp/PROMPT_ENGINEERING_FIX.md) - ClimateGPT integration fixes
+
+
 

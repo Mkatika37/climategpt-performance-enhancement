@@ -547,3 +547,5 @@ def _str2bool(s: Optional[str], default: bool = False) -> bool:
 def _normalize_path(p: str) -> str:
     """Normalize Windows or mixed separators to POSIX-ish; return usable path/filename."""
     return p.replace("\\", "/")
+
+

@@ -3,7 +3,7 @@
 # Run this from your local Windows machine using Git Bash or WSL
 
 SERVER="YOUR_USERNAME@YOUR_SERVER_IP"
-REMOTE_DIR="/srv/github/GMU_DAEN_2025_02_D/Source/MCP"
+REMOTE_DIR="./Source/MCP"
 
 echo "=========================================="
 echo "Deploying MCP Wrapper Scripts"
@@ -86,4 +86,6 @@ echo ""
 echo "For troubleshooting, see:"
 echo "  $PWD/SSH_MCP_TROUBLESHOOTING.md"
 echo ""
+
+
 

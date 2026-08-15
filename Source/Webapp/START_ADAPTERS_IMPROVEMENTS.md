@@ -85,13 +85,13 @@ Press Ctrl+C to stop both servers
 
 **On OpenStack Server:**
 ```bash
-cd /srv/github/GMU_DAEN_2025_02_D/Source/Webapp
+cd ./Source/Webapp
 ./start_http_adapters.sh
 ```
 
 **Or via SSH from local machine:**
 ```bash
-ssh YOUR_USERNAME@YOUR_SERVER_IP "/srv/github/GMU_DAEN_2025_02_D/Source/Webapp/start_http_adapters.sh"
+ssh YOUR_USERNAME@YOUR_SERVER_IP "./Source/Webapp/start_http_adapters.sh"
 ```
 
 ## Technical Details
@@ -132,4 +132,6 @@ First attempts graceful shutdown (SIGTERM), then force kill (SIGKILL) if needed.
 
 - [HTTP_ADAPTER_SETUP.md](HTTP_ADAPTER_SETUP.md) - Complete HTTP adapter setup guide
 - [QUICK_START_HTTP.md](QUICK_START_HTTP.md) - Quick start guide
+
+
 

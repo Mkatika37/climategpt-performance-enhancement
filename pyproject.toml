@@ -1,7 +1,7 @@
 [project]
-name = "DAEN690-Pipeline"
+name = "climategpt-pipeline"
 version = "0.1.4"
-description = "Python libraries and adapters for GMU DAEN 2025-02-D"
+description = "Python libraries and adapters for climategpt-performance-enhancement"
 
 dependencies = [
     # preserved/top-level deps (cleaned)
@@ -32,3 +32,5 @@ dependencies = [
 [build-system]
 requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
+
+

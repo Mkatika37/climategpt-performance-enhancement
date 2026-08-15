@@ -39,7 +39,7 @@ if %ERRORLEVEL% EQU 0 (
 echo.
 
 echo [3/4] Testing mcp-http-client.js...
-if exist "C:\Users\iruka\Documents\GitHub\GMU_DAEN_2025_02_D\Source\MCP\mcp-http-client.js" (
+if exist "C:\Users\iruka\Documents\GitHub\climategpt-performance-enhancement\Source\MCP\mcp-http-client.js" (
     echo   ✓ mcp-http-client.js found
 ) else (
     echo   ✗ FAILED: mcp-http-client.js not found
@@ -48,7 +48,7 @@ if exist "C:\Users\iruka\Documents\GitHub\GMU_DAEN_2025_02_D\Source\MCP\mcp-http
 echo.
 
 echo [4/4] Testing MCP communication...
-echo {"jsonrpc":"2.0","id":1,"method":"initialize","params":{}} | node "C:\Users\iruka\Documents\GitHub\GMU_DAEN_2025_02_D\Source\MCP\mcp-http-client.js" http://localhost:8000 >nul 2>&1
+echo {"jsonrpc":"2.0","id":1,"method":"initialize","params":{}} | node "C:\Users\iruka\Documents\GitHub\climategpt-performance-enhancement\Source\MCP\mcp-http-client.js" http://localhost:8000 >nul 2>&1
 if %ERRORLEVEL% EQU 0 (
     echo   ✓ MCP HTTP client working
 ) else (
@@ -76,4 +76,6 @@ echo ✗ Setup incomplete - see errors above
 echo ========================================
 echo.
 pause
+
+
 
